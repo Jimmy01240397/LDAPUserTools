@@ -163,6 +163,7 @@ then
 		gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}')
 	fi
 elif [ "$gid" = "" ] && ! $genusergroup
+then
 	gid=100
 fi
 
