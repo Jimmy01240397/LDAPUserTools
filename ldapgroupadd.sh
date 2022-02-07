@@ -96,7 +96,7 @@ then
 	read -p "Enter LDAP Password: " -s bindpasswd
 fi
 
-if [ "url" != "" ]
+if [ "$url" != "" ]
 then
 	ldapurl="-H $url"
 fi
