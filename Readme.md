@@ -26,19 +26,20 @@ ldapgroupdel -h
 
 ## example
 Add group and user
-```
+``` bash
 ldapgroupadd -D "cn=admin,dc=example,dc=com" -w "test1234" groupname
 ldapuseradd -D "cn=admin,dc=example,dc=com" -w "test1234" -s /bin/bash username
 ```
 or add a bindconf
-```
+``` bash
 vi <pathofbindconf>/<nameofbindconf>.yaml
-
+```
+``` yaml
 url: ldap://127.0.0.1
 binddn: cn=admin,dc=example,dc=com
 bindpasswd: test1234
 ```
-```
+``` bash
 ldapgroupadd -f <pathofbindconf>/<nameofbindconf>.yaml groupname
 ldapuseradd -f <pathofbindconf>/<nameofbindconf>.yaml -s /bin/bash username
 ```
