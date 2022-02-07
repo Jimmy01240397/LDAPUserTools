@@ -116,6 +116,7 @@ then
 fi
 
 echo "dn: cn=$groupname,ou=groups,$basedn
+objectClass: groupOfNames
 objectClass: posixGroup
 cn: $groupname
 gidNumber: $gid" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
