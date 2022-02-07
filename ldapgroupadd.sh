@@ -107,7 +107,7 @@ gid=$(echo $gid | sed "s/[^0-9]//g")
 
 if [ "$gid" = "" ]
 then
-	gid=$(($(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(objectClass=groupOfNames)" -LLL | grep gidNumber: | sort | tail -n 1 | awk '{print $2}' | sed "s/[^0-9]//g") + 1))
+	gid=$(($(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(objectClass=posixGroup)" -LLL | grep gidNumber: | sort | tail -n 1 | awk '{print $2}' | sed "s/[^0-9]//g") + 1))
 fi
 
 if [ "$gid" = "1" ]
@@ -116,7 +116,7 @@ then
 fi
 
 echo "dn: cn=$groupname,ou=groups,$basedn
-objectClass: groupOfNames
+objectClass: posixGroup
 cn: $groupname
 gidNumber: $gid" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
 
