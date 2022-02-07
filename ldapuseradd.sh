@@ -180,8 +180,18 @@ then
 	uid=10000
 fi
 
-
-cat /etc/ldap/templates/user.ldif | sed "s/{dn}/cn=$username,ou=people,$basedn/g" | sed "s/{username}/$username/g" | sed "s/{password}/$(slappasswd $userpassword)/g" | sed "s/{shell}/$shell/g" | sed "s/{uid}/$uid/g" | sed "s/{gid}/$gid/g" | sed "s/{homedir}/$homedir/g" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
+echo "dn: cn=$username,ou=people,$basedn
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: $username
+uid: $username
+userPassword: $(slappasswd $userpassword)
+loginShell: $shell
+uidNumber: $uid
+gidNumber: $gid
+homeDirectory: $homedir" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
 
 gidgroupname=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$gid))" -LLL | grep -P "^cn:" | awk '{print $2}')
 

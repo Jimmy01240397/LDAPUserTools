@@ -115,7 +115,10 @@ then
 	gid=10000
 fi
 
-cat /etc/ldap/templates/group.ldif | sed "s/{dn}/cn=$groupname,ou=groups,$basedn/g" | sed "s/{groupname}/$groupname/g" | sed "s/{gid}/$gid/g" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
+echo "dn: cn=$groupname,ou=groups,$basedn
+objectClass: posixGroup
+cn: $groupname
+gidNumber: $gid" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
 
 for a in $users
 do
