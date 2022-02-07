@@ -151,16 +151,16 @@ then
 	homedir=/home/$username
 fi
 
-gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(|(gidNumber=$gid)(cn=$gid)))" -LLL | grep -P "^gidNumber:" | tail -n 1 | awk '{print $2}')
+gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=groupOfNames)(|(gidNumber=$gid)(cn=$gid)))" -LLL | grep -P "^gidNumber:" | tail -n 1 | awk '{print $2}')
 
 
 if [ "$gid" = "" ] && $genusergroup
 then
-	gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}')
+	gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=groupOfNames)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}')
 	if [ "$gid" = "" ]
 	then
 		ldapgroupadd $ldapurl -D "$binddn" -w "$bindpasswd" $username
-		gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}')
+		gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=groupOfNames)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}')
 	fi
 elif [ "$gid" = "" ] && ! $genusergroup
 then
@@ -193,7 +193,7 @@ uidNumber: $uid
 gidNumber: $gid
 homeDirectory: $homedir" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
 
-gidgroupname=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$gid))" -LLL | grep -P "^cn:" | awk '{print $2}')
+gidgroupname=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=groupOfNames)(gidNumber=$gid))" -LLL | grep -P "^cn:" | awk '{print $2}')
 
 if [ "$gidgroupname" != "" ]
 then
@@ -209,7 +209,7 @@ fi
 
 for a in $groups
 do
-	if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$a))" -LLL)" != "" ]
+	if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=groupOfNames)(cn=$a))" -LLL)" != "" ]
 	then
 		echo "dn: cn=$a,ou=groups,$basedn
 changetype: modify
