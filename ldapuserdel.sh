@@ -95,7 +95,7 @@ groupsdn=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&
 
 gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(uid=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}')
 
-gidgroupdn=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gid=$gid))" -LLL | grep -P "^dn:" | awk '{print $2}')
+gidgroupdn=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$gid))" -LLL | grep -P "^dn:" | awk '{print $2}')
 
 for a in $groupsdn
 do
@@ -108,11 +108,11 @@ delete: member
 member: cn=$username,ou=people,$basedn" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
 done
 
-if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gid=$gid))" -LLL | grep -P "^memberUid:")" = "" ]
+if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$gid))" -LLL | grep -P "^memberUid:")" = "" ]
 then
 	ldapdelete -x $ldapurl -D "$binddn" -w "$bindpasswd" $gidgroupdn
 else
-	echo "$0: group $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gid=$gid))" -LLL | grep -P "^cn:" | awk '{print $2}') not removed because it has other members."
+	echo "$0: group $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$gid))" -LLL | grep -P "^cn:" | awk '{print $2}') not removed because it has other members."
 fi
 
 ldapdelete -x $ldapurl -D "$binddn" -w "$bindpasswd" "cn=$username,ou=people,$basedn"
