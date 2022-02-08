@@ -156,6 +156,7 @@ if $promptpassword
 then
 	newpasswd=$(slappasswd)
 elif [ "$password" != "" ]
+then
 	newpasswd=$(slappasswd -s $password)
 fi
 
