@@ -100,7 +100,7 @@ gidgroupdn=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "
 for a in $groupsdn
 do
 	echo "dn: $a
-changetype: modifly
+changetype: modify
 delete: memberUid
 memberUid: $username
 -

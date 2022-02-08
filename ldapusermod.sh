@@ -171,7 +171,7 @@ uid=$(echo $uid | sed "s/[^0-9]//g")
 if [ "$homedir" != "" ]
 then
 	echo "dn: cn=$username,ou=people,$basedn
-changetype: modifly
+changetype: modify
 replace: homeDirectory
 homeDirectory: $homedir" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
@@ -179,7 +179,7 @@ fi
 if [ "$shell" != "" ]
 then
 	echo "dn: cn=$username,ou=people,$basedn
-changetype: modifly
+changetype: modify
 replace: loginShell
 loginShell: $shell" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
@@ -187,7 +187,7 @@ fi
 if [ "$newpasswd" != "" ]
 then
 	echo "dn: cn=$username,ou=people,$basedn
-changetype: modifly
+changetype: modify
 replace: userPassword
 userPassword: $newpasswd" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
@@ -195,7 +195,7 @@ fi
 if [ "$uid" != "" ]
 then
 	echo "dn: cn=$username,ou=people,$basedn
-changetype: modifly
+changetype: modify
 replace: uidNumber
 uidNumber: $uid" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
@@ -205,7 +205,7 @@ then
 	if [ "$oldgid" != "100" ]
 	then
 		echo "dn: $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$oldgid))" -LLL | grep -P "^dn:" | awk '{print $2}')
-changetype: modifly
+changetype: modify
 delete: memberUid
 memberUid: $username
 -
@@ -216,7 +216,7 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 	if [ "$gid" != "100" ]
 	then
 		echo "dn: $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$gid))" -LLL | grep -P "^dn:" | awk '{print $2}')
-changetype: modifly
+changetype: modify
 add: memberUid
 memberUid: $username
 -
@@ -225,7 +225,7 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 	fi
 
 	echo "dn: cn=$username,ou=people,$basedn
-changetype: modifly
+changetype: modify
 replace: gidNumber
 gidNumber: $gid" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	
@@ -241,7 +241,7 @@ then
 						if [ "$a" != "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$oldgid))" -LLL | grep -P "^dn:" | awk '{print $2}')" ]
 						then
 							echo "dn: $a
-changetype: modifly
+changetype: modify
 delete: memberUid
 memberUid: $username
 -
@@ -253,7 +253,7 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 					for a in $groups
 					do
 						echo "dn: cn=$a,ou=groups,$basedn
-changetype: modifly
+changetype: modify
 add: memberUid
 memberUid: $username
 -
@@ -265,7 +265,7 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 					for a in $groups
 					do
 						echo "dn: cn=$a,ou=groups,$basedn
-changetype: modifly
+changetype: modify
 add: memberUid
 memberUid: $username
 -
@@ -279,7 +279,7 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 						if [ "$a" != "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$oldgid))" -LLL | grep -P "^cn:" | awk '{print $2}')" ]
 						then
 							echo "dn: cn=$a,ou=groups,$basedn
-changetype: modifly
+changetype: modify
 delete: memberUid
 memberUid: $username
 -
@@ -311,7 +311,7 @@ uid: $newusername" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	for a in $allgroups
 	do
 		echo "dn: $a
-changetype: modifly
+changetype: modify
 delete: memberUid
 memberUid: $username
 -
