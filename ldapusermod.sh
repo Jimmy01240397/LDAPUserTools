@@ -321,13 +321,7 @@ changetype: modify
 delete: memberUid
 memberUid: $username
 -
-delete: member
-member: cn=$username,ou=people,$basedn
--
 add: memberUid
-memberUid: $newusername
--
-add: member
-member: cn=$newusername,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
+memberUid: $newusername" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	done
 fi
