@@ -157,6 +157,12 @@ then
 	newpasswd=$(slappasswd -s $password)
 fi
 
+if $promptpassword && [ "$userpassword" = "" ]
+then
+	exit 0
+fi
+
+
 basedn=$(echo $(for a in $(echo "$binddn" | sed "s/,/ /g"); do  printf "%s," $(echo $a | grep dc=); done) | sed "s/^,//g" | sed "s/,$//g")
 
 oldgid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}' | sed "s/[^0-9]//g")

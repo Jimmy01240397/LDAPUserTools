@@ -146,6 +146,11 @@ else
 	userpassword="$(slappasswd)"
 fi
 
+if [ "$userpassword" = "" ]
+then
+	exit 0
+fi
+
 basedn=$(echo $(for a in $(echo "$binddn" | sed "s/,/ /g"); do  printf "%s," $(echo $a | grep dc=); done) | sed "s/^,//g" | sed "s/,$//g")
 
 if [ "$homedir" = "" ]
