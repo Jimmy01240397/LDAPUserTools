@@ -39,7 +39,7 @@ else
     exit 0
 fi
 
-for a in $(ls | grep -P "ldap.*\.sh" | grep -v "$(echo "$0" | sed "s/^.*\///g")")
+for a in $(ls | grep -P "^ldap.*\.sh" | grep -v "$(echo "$0" | sed "s/^.*\///g")")
 do
 	cp $a /usr/local/bin/$(echo "$a" | sed "s/\.sh//g")
 	chmod +x /usr/local/bin/$(echo "$a" | sed "s/\.sh//g")
