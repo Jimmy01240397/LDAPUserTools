@@ -51,7 +51,7 @@ do
                         ;;
                 -M|--members)
                         shift
-                        members=$(echo $1 | sed "s/,/ /g")
+                        members=" $(echo $1 | sed "s/,/ /g") "
                         ;;
                 -a|--append)
                         usersmode="add"
@@ -144,7 +144,15 @@ fi
 
 if [ "$members" != "" ]
 then
-	members=$members" "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(gidNumber=$oldgid))" -LLL | grep -P "^cn:" | awk '{print $2}')
+	if [ "$usersmode" == "replace" ]
+	then
+		members=$members" "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(gidNumber=$oldgid))" -LLL | grep -P "^cn:" | awk '{print $2}')
+	else
+		for a in $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(gidNumber=$oldgid))" -LLL | grep -P "^cn:" | awk '{print $2}')
+		do
+			members=$(echo "$members" | sed "s/ $a / /g")
+		done
+	fi
 	modifybase="dn: cn=$groupname,ou=groups,$basedn
 changetype: modify
 ${usersmode}: memberUid"
