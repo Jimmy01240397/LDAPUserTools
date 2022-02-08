@@ -67,11 +67,9 @@ do
                         groups=$(echo $1 | sed "s/,/ /g")
                         ;;
                 -a|--append)
-                        shift
                         groupsmode="add"
                         ;;
                 -r|--remove)
-                        shift
                         groupsmode="delete"
                         ;;
                 -s|--shell)
@@ -87,7 +85,6 @@ do
                         password=$1
                         ;;
                 -P|--Password)
-                        shift
                         promptpassword=true
                         ;;
                 -l|--login)
