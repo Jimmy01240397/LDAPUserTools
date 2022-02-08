@@ -105,7 +105,7 @@ delete: memberUid
 memberUid: $username
 -
 delete: member
-member: cn=$username,ou=people,$basedn" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 done
 
 if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$gid))" -LLL | grep -P "^memberUid:")" = "" ]

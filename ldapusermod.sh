@@ -173,7 +173,7 @@ then
 	echo "dn: cn=$username,ou=people,$basedn
 changetype: modifly
 replace: homeDirectory
-homeDirectory: $homedir" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+homeDirectory: $homedir" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
 
 if [ "$shell" != "" ]
@@ -181,7 +181,7 @@ then
 	echo "dn: cn=$username,ou=people,$basedn
 changetype: modifly
 replace: loginShell
-loginShell: $shell" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+loginShell: $shell" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
 
 if [ "$newpasswd" != "" ]
@@ -189,7 +189,7 @@ then
 	echo "dn: cn=$username,ou=people,$basedn
 changetype: modifly
 replace: userPassword
-userPassword: $newpasswd" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+userPassword: $newpasswd" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
 
 if [ "$uid" != "" ]
@@ -197,7 +197,7 @@ then
 	echo "dn: cn=$username,ou=people,$basedn
 changetype: modifly
 replace: uidNumber
-uidNumber: $uid" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+uidNumber: $uid" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
 
 if [ "$gid" != "" ]
@@ -210,7 +210,7 @@ delete: memberUid
 memberUid: $username
 -
 delete: member
-member: cn=$username,ou=people,$basedn" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	fi
 	
 	if [ "$gid" != "100" ]
@@ -221,13 +221,13 @@ add: memberUid
 memberUid: $username
 -
 add: member
-member: cn=$username,ou=people,$basedn" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	fi
 
 	echo "dn: cn=$username,ou=people,$basedn
 changetype: modifly
 replace: gidNumber
-gidNumber: $gid" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+gidNumber: $gid" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	
 	oldgid=$gid
 fi
@@ -246,7 +246,7 @@ delete: memberUid
 memberUid: $username
 -
 delete: member
-member: cn=$username,ou=people,$basedn" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 						fi
 					done
 
@@ -258,7 +258,7 @@ add: memberUid
 memberUid: $username
 -
 add: member
-member: cn=$username,ou=people,$basedn" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 					done
 					;;
 			add)
@@ -270,7 +270,7 @@ add: memberUid
 memberUid: $username
 -
 add: member
-member: cn=$username,ou=people,$basedn" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 					done
 					;;
 			delete)
@@ -284,7 +284,7 @@ delete: memberUid
 memberUid: $username
 -
 delete: member
-member: cn=$username,ou=people,$basedn" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 						fi
 					done
 					;;
@@ -322,6 +322,6 @@ add: memberUid
 memberUid: $newusername
 -
 add: member
-member: cn=$newusername,ou=people,$basedn" | ldapmodifly -x $ldapurl -D "$binddn" -w "$bindpasswd"
+member: cn=$newusername,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	done
 fi
