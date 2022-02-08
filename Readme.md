@@ -13,6 +13,11 @@ cd LDAPUserTools
 sh install.sh
 ```
 
+3. setup posixGroup member
+``` bash
+bash setupposixGroupmember.sh
+```
+
 ## usage
 use -h to see info
 ``` bash
