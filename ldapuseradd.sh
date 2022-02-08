@@ -141,7 +141,9 @@ fi
 
 if [ "$password" != "" ]
 then
-	userpassword="-s $password"
+	userpassword="$(slappasswd -s $password)"
+else
+	userpassword="$(slappasswd)"
 fi
 
 basedn=$(echo $(for a in $(echo "$binddn" | sed "s/,/ /g"); do  printf "%s," $(echo $a | grep dc=); done) | sed "s/^,//g" | sed "s/,$//g")
@@ -187,7 +189,7 @@ objectClass: posixAccount
 objectClass: shadowAccount
 cn: $username
 uid: $username
-userPassword: $(slappasswd $userpassword)
+userPassword: $userpassword
 loginShell: $shell
 uidNumber: $uid
 gidNumber: $gid

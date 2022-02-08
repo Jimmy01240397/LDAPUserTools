@@ -236,7 +236,7 @@ if [ "$groups" != "" ]
 then
 	case "$groupsmode" in
 			replace)
-					for a in $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(uid=$username))" -LLL | grep -P "^memberOf:" | awk '{print $2}')
+					for a in $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(uid=$username))" memberOf -LLL | grep -P "^memberOf:" | awk '{print $2}')
 					do
 						if [ "$a" != "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$oldgid))" -LLL | grep -P "^dn:" | awk '{print $2}')" ]
 						then
@@ -294,7 +294,7 @@ fi
 
 if [ "$newusername" != "" ]
 then
-	allgroups="$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(uid=$username))" -LLL | grep -P "^memberOf:" | awk '{print $2}')"
+	allgroups="$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(uid=$username))" memberOf -LLL | grep -P "^memberOf:" | awk '{print $2}')"
 	echo "dn: cn=$username,ou=people,$basedn
 changetype: moddn
 newrdn: cn=$newusername
