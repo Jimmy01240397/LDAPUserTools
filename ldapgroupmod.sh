@@ -54,11 +54,9 @@ do
                         members=$(echo $1 | sed "s/,/ /g")
                         ;;
                 -a|--append)
-                        shift
                         usersmode="add"
                         ;;
                 -r|--remove)
-                        shift
                         usersmode="delete"
                         ;;
 				-n|--new-name)
