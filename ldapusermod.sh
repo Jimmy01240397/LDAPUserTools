@@ -17,6 +17,7 @@ Options:
   -l, --login NEW_LOGIN         new value of the login name
   -p, --password PASSWORD       password of the new password
   -P, --Password				prompt for new password 
+  -k, --sshkeys KEYS            Your sshkeys for this account
   -s, --shell SHELL             new login shell for the user account
   -u, --uid UID                 new UID for the user account
   -f, --bindfile				set url,binddn,bindpasswd with file
@@ -41,6 +42,8 @@ homedir=""
 gid=""
 uid=""
 groupsmode="replace"
+sshkeysmode="replace"
+sshkeys=""
 groups=""
 shell=""
 url=""
@@ -67,10 +70,22 @@ do
                         groups=$(echo $1 | sed "s/,/ /g")
                         ;;
                 -a|--append)
-                        groupsmode="add"
+                        if [ $2 == "-G" ] || [ $2 == "--groups" ]
+                        then
+                            groupsmode="add"
+                        elif [ $2 == "-k" ] || [ $2 == "--sshkeys" ]
+                        then
+                            sshkeysmode="add"
+                        fi
                         ;;
                 -r|--remove)
-                        groupsmode="delete"
+                        if [ $2 == "-G" ] || [ $2 == "--groups" ]
+                        then
+                            groupsmode="delete"
+                        elif [ $2 == "-k" ] || [ $2 == "--sshkeys" ]
+                        then
+                            sshkeysmode="delete"
+                        fi
                         ;;
                 -s|--shell)
                         shift
@@ -86,6 +101,10 @@ do
                         ;;
                 -P|--Password)
                         promptpassword=true
+                        ;;
+                -k|--sshkeys)
+                        shift
+                        sshkeys=$(echo $1 | sed "s/,/ /g")
                         ;;
                 -l|--login)
                         shift
@@ -297,6 +316,18 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 	esac
 fi
 
+if [ "$sshkeys" != "" ]
+then
+	modifybase="dn: cn=$username,ou=people,$basedn
+changetype: modify
+${sshkeysmode}: sshkey"
+	for a in $sshkeys
+	do
+		modifybase=$modifybase"
+sshkey: cn=$a,ou=sshkey,$basedn"
+	done
+	echo "$modifybase" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
+fi
 
 if [ "$newusername" != "" ]
 then
@@ -325,3 +356,4 @@ add: memberUid
 memberUid: $newusername" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	done
 fi
+

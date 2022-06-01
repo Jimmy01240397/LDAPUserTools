@@ -2,13 +2,12 @@
 
 printhelp()
 {
-	echo "Usage: $0 [options] GROUP
+	echo "Usage: $0 [options] KEYNAME
 
 Options:
-  -g, --gid GID                 use GID for the new group
   -h, --help                    display this help message and exit
-  -m, --members USERS			list of users of the new group
   -f, --bindfile				set url,binddn,bindpasswd with file
+  -k, --sshkey FilePath         Your sshkey file(only include first line of key)
   -H, --url URL					LDAP Uniform Resource Identifier(s)
   -D, --binddn DN				bind DN
   -w, --bindpasswd PASSWORD		bind password"
@@ -22,9 +21,8 @@ then
 	exit 0
 fi
 
-groupname=""
-gid=""
-users=""
+keyname=""
+sshkey=""
 url=""
 binddn=""
 bindpasswd=""
@@ -36,13 +34,9 @@ do
 				-h|--help)
                         printhelp
                         ;;
-                -g|--gid)
+                -k|--sshkey)
                         shift
-                        gid=$1
-                        ;;
-                -m|--members)
-                        shift
-                        users=$(echo $1 | sed "s/,/ /g")
+                        sshkey="$(grep "^ssh" $1 | sed -n '1p')"
                         ;;
 				-f|--bindfile)
 						shift
@@ -79,13 +73,13 @@ do
                         then
                                 break
                         fi
-						groupname=$1
+						keyname=$1
                         ;;
         esac
         shift
 done
 
-if [ "$groupname" = "" ] || [ "$binddn" = "" ]
+if [ "$keyname" = "" ] || [ "$sshkey" = "" ] || [ "$binddn" = "" ]
 then
 	echo "Please add your groupname and ldapbinddn."
 	printhelp
@@ -103,37 +97,9 @@ fi
 
 basedn=$(echo $(for a in $(echo "$binddn" | sed "s/,/ /g"); do  printf "%s," $(echo $a | grep dc=); done) | sed "s/^,//g" | sed "s/,$//g")
 
-gid=$(echo $gid | sed "s/[^0-9]//g")
-
-if [ "$gid" = "" ]
-then
-	gid=$(($(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(objectClass=posixGroup)" -LLL | grep gidNumber: | sort | tail -n 1 | awk '{print $2}' | sed "s/[^0-9]//g") + 1))
-fi
-
-if [ "$gid" = "1" ]
-then
-	gid=10000
-fi
-
-echo "dn: cn=$groupname,ou=groups,$basedn
-objectClass: posixGroup
-objectClass: memberGroup
-cn: $groupname
-gidNumber: $gid" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
-
-for a in $users
-do
-	
-	if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(uid=$a))" -LLL)" != "" ]
-	then
-		echo "dn: cn=$groupname,ou=groups,$basedn
-changetype: modify
-add: memberUid
-memberUid: $a
--
-add: member
-member: cn=$a,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
-	fi
-done
+echo "dn: cn=$keyname,ou=sshkey,$basedn
+objectClass: sshPublicKey
+cn: $keyname
+sshpubkey: $sshkey" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
 
 

@@ -13,9 +13,9 @@ cd LDAPUserTools
 sh install.sh
 ```
 
-3. setup posixGroup member
+3. setup all schema
 ``` bash
-bash setupposixGroupmember.sh
+bash initldapschema.sh
 ```
 
 ## usage

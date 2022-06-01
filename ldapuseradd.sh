@@ -14,6 +14,7 @@ Options:
   -N, --no-user-group           do not create a group with the same name as
                                 the user
   -p, --password PASSWORD       password of the new account
+  -k, --sshkeys KEYS            Your sshkeys for this account
   -s, --shell SHELL             login shell of the new account
   -u, --uid UID                 user ID of the new account
   -U, --user-group              create a group with the same name as the user
@@ -34,6 +35,7 @@ fi
 
 username=""
 password=""
+sshkeys=""
 homedir=""
 gid=""
 uid=""
@@ -81,6 +83,10 @@ do
                 -p|--password)
                         shift
                         password=$1
+                        ;;
+                -k|--sshkeys)
+                        shift
+                        sshkeys=$(echo $1 | sed "s/,/ /g")
                         ;;
 				-f|--bindfile)
 						shift
@@ -192,6 +198,7 @@ objectClass: top
 objectClass: account
 objectClass: posixAccount
 objectClass: shadowAccount
+objectClass: sshAccount
 cn: $username
 uid: $username
 userPassword: $userpassword
@@ -213,7 +220,6 @@ add: member
 member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
 
-
 for a in $groups
 do
 	if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$a))" -LLL)" != "" ]
@@ -227,3 +233,15 @@ add: member
 member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	fi
 done
+
+for a in $sshkeys
+do
+	if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=sshPublicKey)(cn=$a))" -LLL)" != "" ]
+	then
+	    echo "dn: cn=$username,ou=people,$basedn
+changetype: modify
+add: sshkey
+sshkey: cn=$a,ou=sshkey,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
+	fi
+done
+

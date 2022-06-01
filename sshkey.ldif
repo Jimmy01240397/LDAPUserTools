@@ -1,0 +1,14 @@
+dn: cn=sshkey,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: sshkey
+olcAttributeTypes: ( 1.3.6.1.4.1.24552.500.1.1.1.12 NAME 'sshkey' 
+ DESC 'sshkey of account' SUP distinguishedName )
+olcAttributeTypes: ( 1.3.6.1.4.1.24552.500.1.1.1.13 NAME 'sshpubkey' DESC 
+ 'MANDATORY: OpenSSH Public key' EQUALITY octetStringMatch SYNTAX 1.3.6.
+ 1.4.1.1466.115.121.1.40 )
+olcObjectClasses: ( 1.3.6.1.4.1.24552.500.1.1.2.0 NAME 'sshPublicKey' 
+ SUP top STRUCTURAL DESC 'MANDATORY: OpenSSH LPK objectclass' 
+ MUST ( cn $ sshpubkey ) )
+olcObjectClasses: ( 1.3.6.1.4.1.24552.500.1.1.2.1 NAME 'sshAccount' 
+ SUP top AUXILIARY DESC 'MANDATORY: OpenSSH sshAccount objectclass' 
+ MAY sshkey )

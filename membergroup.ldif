@@ -1,0 +1,6 @@
+dn: cn=membergroup
+objectClass: olcSchemaConfig
+cn: membergroup
+olcObjectClasses: ( 1.3.6.1.4.1.24553.500.1.1.2.0 NAME 'memberGroup' 
+ SUP top AUXILIARY DESC 'MANDATORY: group with member attribute' 
+ MAY member )
