@@ -18,6 +18,18 @@ sh install.sh
 bash initldapschema.sh
 ```
 
+4. setup all ssh ldap public key login
+``` bash
+cp sshldappubkey.sh /usr/local/bin/sshldappubkey
+chmod 700 /usr/local/bin/sshldappubkey
+vi /etc/ssh/sshd_config
+```
+
+``` bash
+AuthorizedKeysCommand /usr/local/bin/sshldappubkey
+AuthorizedKeysCommandUser root
+```
+
 ## usage
 use -h to see info
 ``` bash
