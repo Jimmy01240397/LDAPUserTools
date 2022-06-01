@@ -28,7 +28,7 @@ fi
 sshkeydn="$(ldapsearch -x -H $url -b "$base" -D "$binddn" -w $passwd '(&(objectClass=posixAccount)(uid='"$1"'))' 'sshkey' | sed -n '/^ /{H;d};/sshkey:/x;$g;s/\n *//g;s/sshkey: //gp')"
 
 
-for a in $sshkey
+for a in $sshkeydn
 do
     ldapsearch -x -H $url -b "$a" -D "$binddn" -w $passwd '(objectClass=sshPublicKey)' 'sshpubkey' | sed -n '/^ /{H;d};/sshpubkey:/x;$g;s/\n *//g;s/sshpubkey: //gp'
 done
