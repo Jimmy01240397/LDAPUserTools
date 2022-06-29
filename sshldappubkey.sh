@@ -10,6 +10,12 @@ then
     passwd="$(cat /etc/ldap.secret)"
 fi
 
+ldapconf=libnss-ldap
+if [ -f /etc/nslcd.conf ]
+then
+    ldapconf=nslcd
+fi
+
 url="$(grep "^uri" /etc/nslcd.conf | awk '{print $2}')"
 
 base="$(grep "^base" /etc/nslcd.conf | awk '{print $2}')"
