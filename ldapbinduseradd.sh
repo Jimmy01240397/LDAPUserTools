@@ -2,15 +2,15 @@
 
 printhelp()
 {
-	echo "Usage: $0 [options] KEYNAME
+	echo "Usage: $0 [options]
 
 Options:
   -h, --help                    display this help message and exit
   -f, --bindfile				set url,binddn,bindpasswd with file
-  -k, --sshkey FilePath         Your sshkey file
   -H, --url URL					LDAP Uniform Resource Identifier(s)
   -D, --binddn DN				bind DN
   -w, --bindpasswd PASSWORD		bind password"
+
 	exit 0
 }
 
@@ -21,11 +21,11 @@ then
 	exit 0
 fi
 
-keyname=""
-sshkey=""
+username=""
 url=""
 binddn=""
 bindpasswd=""
+
 
 for a in $(seq 1 1 $argnum)
 do
@@ -33,10 +33,6 @@ do
         case "$nowarg" in
 				-h|--help)
                         printhelp
-                        ;;
-                -k|--sshkey)
-                        shift
-                        sshkey="$(grep "^ssh" $1)"
                         ;;
 				-f|--bindfile)
 						shift
@@ -56,7 +52,7 @@ do
 							bindpasswd=""
 						fi
 						;;
-                -H|--url)
+				-H|--url)
                         shift
                         url=$1
                         ;;
@@ -73,15 +69,15 @@ do
                         then
                                 break
                         fi
-						keyname=$1
+						username=$1
                         ;;
         esac
         shift
 done
 
-if [ "$keyname" = "" ] || [ "$sshkey" = "" ] || [ "$binddn" = "" ]
+if [ "$username" = "" ] || [ "$binddn" = "" ]
 then
-	echo "Please add your groupname and ldapbinddn."
+	echo "Please add your username and ldapbinddn."
 	printhelp
 fi
 
@@ -97,9 +93,6 @@ fi
 
 basedn=$(echo $(for a in $(echo "$binddn" | sed "s/,/ /g"); do  printf "%s," $(echo $a | grep dc=); done) | sed "s/^,//g" | sed "s/,$//g")
 
-echo "dn: cn=$keyname,ou=sshkey,$basedn
-objectClass: sshPublicKey
-cn: $keyname
-$(echo "$sshkey" | sed 's/^/sshpubkey: /')" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
 
+ldapdelete -x $ldapurl -D "$binddn" -w "$bindpasswd" "cn=$username,ou=Applications,$basedn"
 

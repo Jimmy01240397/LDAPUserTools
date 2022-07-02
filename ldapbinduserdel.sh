@@ -2,15 +2,16 @@
 
 printhelp()
 {
-	echo "Usage: $0 [options] KEYNAME
+	echo "Usage: $0 [options]
 
 Options:
   -h, --help                    display this help message and exit
+  -p, --password PASSWORD       password of the new account
   -f, --bindfile				set url,binddn,bindpasswd with file
-  -k, --sshkey FilePath         Your sshkey file
   -H, --url URL					LDAP Uniform Resource Identifier(s)
   -D, --binddn DN				bind DN
   -w, --bindpasswd PASSWORD		bind password"
+
 	exit 0
 }
 
@@ -21,11 +22,12 @@ then
 	exit 0
 fi
 
-keyname=""
-sshkey=""
+username=""
+password=""
 url=""
 binddn=""
 bindpasswd=""
+
 
 for a in $(seq 1 1 $argnum)
 do
@@ -34,9 +36,9 @@ do
 				-h|--help)
                         printhelp
                         ;;
-                -k|--sshkey)
+                -p|--password)
                         shift
-                        sshkey="$(grep "^ssh" $1)"
+                        password=$1
                         ;;
 				-f|--bindfile)
 						shift
@@ -56,7 +58,7 @@ do
 							bindpasswd=""
 						fi
 						;;
-                -H|--url)
+				-H|--url)
                         shift
                         url=$1
                         ;;
@@ -73,15 +75,15 @@ do
                         then
                                 break
                         fi
-						keyname=$1
+						username=$1
                         ;;
         esac
         shift
 done
 
-if [ "$keyname" = "" ] || [ "$sshkey" = "" ] || [ "$binddn" = "" ]
+if [ "$username" = "" ] || [ "$binddn" = "" ]
 then
-	echo "Please add your groupname and ldapbinddn."
+	echo "Please add your username and ldapbinddn."
 	printhelp
 fi
 
@@ -95,11 +97,22 @@ then
 	ldapurl="-H $url"
 fi
 
+if [ "$password" != "" ]
+then
+	userpassword="$(slappasswd -s $password)"
+else
+	userpassword="$(slappasswd)"
+fi
+
+if [ "$userpassword" = "" ]
+then
+	exit 0
+fi
+
 basedn=$(echo $(for a in $(echo "$binddn" | sed "s/,/ /g"); do  printf "%s," $(echo $a | grep dc=); done) | sed "s/^,//g" | sed "s/,$//g")
 
-echo "dn: cn=$keyname,ou=sshkey,$basedn
-objectClass: sshPublicKey
-cn: $keyname
-$(echo "$sshkey" | sed 's/^/sshpubkey: /')" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
-
-
+echo "dn: cn=$username,ou=Applications,$basedn
+objectClass: organizationalRole
+objectClass: simpleSecurityObject
+cn: $username
+userPassword: $userpassword" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
