@@ -33,7 +33,7 @@ then
     binddn="$(grep "^rootbinddn" /etc/ldap.conf | awk '{print $2}')"
 elif [ -f /etc/nslcd.conf ]
 then
-    passwd="$(grep "^binddn" /etc/nslcd.conf | awk '{print $2}')"
+    binddn="$(grep "^binddn" /etc/nslcd.conf | awk '{print $2}')"
 fi
 
 
