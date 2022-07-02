@@ -8,6 +8,9 @@ then
 elif [ -f /etc/ldap.secret ]
 then
     passwd="$(cat /etc/ldap.secret)"
+elif [ -f /etc/nslcd.conf ]
+then
+    passwd="$(grep "^bindpw" /etc/nslcd.conf | awk '{print $2}')"
 fi
 
 ldapconf=libnss-ldap
@@ -28,6 +31,9 @@ then
 elif [ -f /etc/ldap.conf ]
 then
     binddn="$(grep "^rootbinddn" /etc/ldap.conf | awk '{print $2}')"
+elif [ -f /etc/nslcd.conf ]
+then
+    passwd="$(grep "^binddn" /etc/nslcd.conf | awk '{print $2}')"
 fi
 
 
