@@ -11,7 +11,10 @@ slapadd -b cn=config -l sshkey.ldif
 
 slapadd -b cn=config -l overlaysetup.ldif
 
-sed -i "s/by anonymous auth/by dn.exact=\"ou=Applications,$1\" auth/g" $2
+if [ "$(grep "ou=Applications" $2)" == "" ]
+then
+    sed -i "s/by anonymous auth/by dn.exact=\"ou=Applications,$1\" auth by anonymous auth/g" $2
+fi
 
 sed '1,2d' $2 > /tmp/aaa
 sed -i "s/# CRC32.*/# CRC32 $(crc32 /tmp/aaa)/g" $2
