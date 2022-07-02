@@ -6,6 +6,7 @@ printhelp()
 
 Options:
   -h, --help                    display this help message and exit
+  -p, --password PASSWORD       password of the new account
   -f, --bindfile				set url,binddn,bindpasswd with file
   -H, --url URL					LDAP Uniform Resource Identifier(s)
   -D, --binddn DN				bind DN
@@ -22,6 +23,7 @@ then
 fi
 
 username=""
+password=""
 url=""
 binddn=""
 bindpasswd=""
@@ -33,6 +35,10 @@ do
         case "$nowarg" in
 				-h|--help)
                         printhelp
+                        ;;
+                -p|--password)
+                        shift
+                        password=$1
                         ;;
 				-f|--bindfile)
 						shift
@@ -91,8 +97,22 @@ then
 	ldapurl="-H $url"
 fi
 
+if [ "$password" != "" ]
+then
+	userpassword="$(slappasswd -s $password)"
+else
+	userpassword="$(slappasswd)"
+fi
+
+if [ "$userpassword" = "" ]
+then
+	exit 0
+fi
+
 basedn=$(echo $(for a in $(echo "$binddn" | sed "s/,/ /g"); do  printf "%s," $(echo $a | grep dc=); done) | sed "s/^,//g" | sed "s/,$//g")
 
-
-ldapdelete -x $ldapurl -D "$binddn" -w "$bindpasswd" "cn=$username,ou=Applications,$basedn"
-
+echo "dn: cn=$username,ou=Applications,$basedn
+objectClass: organizationalRole
+objectClass: simpleSecurityObject
+cn: $username
+userPassword: $userpassword" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
