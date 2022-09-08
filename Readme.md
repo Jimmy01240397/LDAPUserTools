@@ -20,10 +20,10 @@ bash initldapschema.sh
 
 4. setup all ou
 ```
-slapadd -b <dn> -l base.ldif
+slapadd -b <dc> -l base.ldif
 ```
 
-4. setup all ssh ldap public key login
+5. setup all ssh ldap public key login
 ``` bash
 cp sshldappubkey.sh /usr/local/bin/sshldappubkey
 chmod 700 /usr/local/bin/sshldappubkey
