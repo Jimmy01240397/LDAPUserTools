@@ -1,0 +1,15 @@
+dn: ou=people,dc=chummydns,dc=com
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=chummydns,dc=com
+objectClass: organizationalUnit
+ou: groups
+
+dn: ou=sshkey,dc=chummydns,dc=com
+objectClass: organizationalUnit
+ou: sshkey
+
+dn: ou=Applications,dc=chummydns,dc=com
+objectClass: organizationalUnit
+ou: Applications
