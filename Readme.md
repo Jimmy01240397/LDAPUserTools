@@ -15,7 +15,7 @@ sh install.sh
 
 3. setup all schema
 ``` bash
-bash initldapschema.sh
+bash initldapschema.sh <your DC> <olcDatabase file>
 ```
 
 4. setup all ou
