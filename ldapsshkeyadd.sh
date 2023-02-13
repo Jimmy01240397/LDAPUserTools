@@ -36,7 +36,7 @@ do
                         ;;
                 -k|--sshkey)
                         shift
-                        sshkey="$(grep "^ssh" $1)"
+                        sshkey="$(grep "^\(ssh\|ecdsa\)" $1)"
                         ;;
 				-f|--bindfile)
 						shift
