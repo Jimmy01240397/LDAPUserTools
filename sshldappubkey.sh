@@ -48,5 +48,5 @@ sshkeydn="$(ldapsearch -x -H $url -b "$base" -D "$binddn" -w $passwd '(&(objectC
 
 for a in $sshkeydn
 do
-    ldapsearch -x -H $url -b "$a" -D "$binddn" -w $passwd '(objectClass=sshPublicKey)' 'sshpubkey' | sed -n 's/sshpubkey: //gp'
+    ldapsearch -x -H $url -b "$a" -D "$binddn" -w $passwd '(objectClass=sshPublicKey)' 'sshpubkey' | sed -n 's/\n *//g;s/sshpubkey: //gp'
 done
