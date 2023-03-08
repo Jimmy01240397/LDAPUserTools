@@ -11,6 +11,9 @@ then
 elif [ -f /etc/nslcd.conf ]
 then
     passwd="$(grep "^bindpw" /etc/nslcd.conf | awk '{print $2}')"
+elif [ -f /usr/local/etc/ldap.conf ]
+then
+    passwd="$(grep "^bindpw" /usr/local/etc/ldap.conf | awk '{print $2}')"
 fi
 
 ldapconf=libnss-ldap
