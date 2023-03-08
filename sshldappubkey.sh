@@ -43,10 +43,10 @@ binddn="$(grep "^\(rootbinddn\|binddn\)" $ldapconf | awk '{print $2}')"
 #fi
 
 
-sshkeydn="$(ldapsearch -x -H $url -b "$base" -D "$binddn" -w $passwd '(&(objectClass=posixAccount)(uid='"$1"'))' 'sshkey' | sed -n '/^ /{H;d};/sshkey:/x;$g;s/\n *//g;s/sshkey: //gp')"
+sshkeydn="$(ldapsearch -x -H $url -b "$base" -D "$binddn" -w $passwd '(&(objectClass=posixAccount)(uid='"$1"'))' 'sshkey' | sed -n 's/sshkey: //gp')"
 
 
 for a in $sshkeydn
 do
-    ldapsearch -x -H $url -b "$a" -D "$binddn" -w $passwd '(objectClass=sshPublicKey)' 'sshpubkey' | sed -n '/^ /{H;d};/sshpubkey:/x;$g;s/\n *//g;s/sshpubkey: //gp'
+    ldapsearch -x -H $url -b "$a" -D "$binddn" -w $passwd '(objectClass=sshPublicKey)' 'sshpubkey' | sed -n 's/sshpubkey: //gp'
 done
