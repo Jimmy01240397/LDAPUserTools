@@ -67,7 +67,7 @@ do
                         ;;
                 -G|--groups)
                         shift
-                        groups=$(echo $1 | sed "s/,/ /g")
+                        groups=$1  #$(echo $1 | sed "s/,/ /g")
                         ;;
                 -a|--append)
                         if [ $2 == "-G" ] || [ $2 == "--groups" ]
@@ -275,6 +275,7 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 						fi
 					done
 
+                    IFS=,
 					for a in $groups
 					do
 						echo "dn: cn=$a,ou=groups,$basedn
@@ -287,6 +288,7 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 					done
 					;;
 			add)
+                    IFS=,
 					for a in $groups
 					do
 						echo "dn: cn=$a,ou=groups,$basedn
@@ -299,6 +301,7 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 					done
 					;;
 			delete)
+                    IFS=,
 					for a in $groups
 					do
 						if [ "$a" != "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$oldgid))" -LLL | grep -P "^cn:" | awk '{print $2}')" ]
@@ -314,6 +317,7 @@ member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w
 					done
 					;;
 	esac
+    IFS=" "
 fi
 
 if [ "$sshkeys" != "" ]

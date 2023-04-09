@@ -64,7 +64,7 @@ do
                         ;;
                 -G|--groups)
                         shift
-                        groups=$(echo $1 | sed "s/,/ /g")
+                        groups=$1         #$(echo $1 | sed "s/,/ /g")
                         ;;
                 -N|--no-user-group)
                         genusergroup=false
@@ -220,6 +220,7 @@ add: member
 member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
 
+IFS=,
 for a in $groups
 do
 	if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$a))" -LLL)" != "" ]
@@ -233,6 +234,7 @@ add: member
 member: cn=$username,ou=people,$basedn" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 	fi
 done
+IFS=" "
 
 for a in $sshkeys
 do
