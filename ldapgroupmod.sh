@@ -128,7 +128,7 @@ oldgid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(o
 
 if [ "$gid" != "" ]
 then
-	for a in $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(gidNumber=$oldgid))" -LLL | grep -P "^dn:" | awk '{print $2}')
+	for a in $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=person)(gidNumber=$oldgid))" -LLL | grep -P "^dn:" | awk '{print $2}')
 	do
 		echo "dn: $a
 changetype: modify
@@ -146,9 +146,9 @@ if [ "$members" != "" ]
 then
 	if [ "$usersmode" == "replace" ]
 	then
-		members=$members" "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(gidNumber=$oldgid))" -LLL | grep -P "^cn:" | awk '{print $2}')
+		members=$members" "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=person)(gidNumber=$oldgid))" -LLL | grep -P "^cn:" | awk '{print $2}')
 	else
-		for a in $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(gidNumber=$oldgid))" -LLL | grep -P "^cn:" | awk '{print $2}')
+		for a in $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=person)(gidNumber=$oldgid))" -LLL | grep -P "^cn:" | awk '{print $2}')
 		do
 			members=$(echo "$members" | sed "s/ $a / /g")
 		done

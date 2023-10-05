@@ -107,7 +107,7 @@ gid=$(echo $gid | sed "s/[^0-9]//g")
 
 if [ "$gid" = "" ]
 then
-	gid=$(($(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(objectClass=posixGroup)" -LLL | grep gidNumber: | sort | tail -n 1 | awk '{print $2}' | sed "s/[^0-9]//g") + 1))
+	gid=$(($(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(objectClass=posixGroup)" -LLL | grep gidNumber: | awk '{print $2}' | sort -n | tail -n 1 | sed "s/[^0-9]//g") + 1))
 fi
 
 if [ "$gid" = "1" ]
@@ -124,7 +124,7 @@ gidNumber: $gid" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
 for a in $users
 do
 	
-	if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(uid=$a))" -LLL)" != "" ]
+	if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=person)(uid=$a))" -LLL)" != "" ]
 	then
 		echo "dn: cn=$groupname,ou=groups,$basedn
 changetype: modify

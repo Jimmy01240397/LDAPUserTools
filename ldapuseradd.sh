@@ -18,6 +18,7 @@ Options:
   -s, --shell SHELL             login shell of the new account
   -u, --uid UID                 user ID of the new account
   -U, --user-group              create a group with the same name as the user
+  -e, --email EMAIL             Set user email
   -f, --bindfile				set url,binddn,bindpasswd with file
   -H, --url URL					LDAP Uniform Resource Identifier(s)
   -D, --binddn DN				bind DN
@@ -39,6 +40,7 @@ sshkeys=""
 homedir=""
 gid=""
 uid=""
+email=""
 groups=""
 genusergroup=true
 shell=/bin/bash
@@ -79,6 +81,10 @@ do
                 -u|--uid)
                         shift
                         uid=$1
+                        ;;
+                -e|--email)
+                        shift
+                        email=$1
                         ;;
                 -p|--password)
                         shift
@@ -164,15 +170,24 @@ then
 	homedir=/home/$username
 fi
 
-gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(|(gidNumber=$gid)(cn=$gid)))" -LLL | grep -P "^gidNumber:" | tail -n 1 | awk '{print $2}')
+gidexist=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(|(gidNumber=$gid)(cn=$gid)))" -LLL | grep -P "^gidNumber:" | tail -n 1 | awk '{print $2}')
 
 
-if [ "$gid" = "" ] && $genusergroup
+if [ "$gidexist" = "" ] && $genusergroup
 then
-	gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}')
-	if [ "$gid" = "" ]
+    if [ "$gid" = "" ]
+    then
+    	gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}')
+        gidexist=$gid
+    fi
+    if [ "$gidexist" = "" ]
 	then
-		ldapgroupadd $ldapurl -D "$binddn" -w "$bindpasswd" $username
+        if [ "$gid" = "" ]
+        then
+		    ldapgroupadd $ldapurl -D "$binddn" -w "$bindpasswd" $username
+        else
+		    ldapgroupadd $ldapurl -D "$binddn" -w "$bindpasswd" -g "$gid" $username
+        fi
 		gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}')
 	fi
 elif [ "$gid" = "" ] && ! $genusergroup
@@ -185,7 +200,7 @@ uid=$(echo $uid | sed "s/[^0-9]//g")
 
 if [ "$uid" = "" ]
 then
-	uid=$(($(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(objectClass=account)" -LLL | grep -P "^uidNumber:" | sort | tail -n 1 | awk '{print $2}' | sed "s/[^0-9]//g") + 1))
+	uid=$(($(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(objectClass=person)" -LLL | grep -P "^uidNumber:" | awk '{print $2}' | sort -n | tail -n 1 | sed "s/[^0-9]//g") + 1))
 fi
 
 if [ "$uid" = "1" ]
@@ -195,17 +210,28 @@ fi
 
 echo "dn: cn=$username,ou=people,$basedn
 objectClass: top
-objectClass: account
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
 objectClass: sshAccount
 cn: $username
+sn: $username
 uid: $username
 userPassword: $userpassword
 loginShell: $shell
 uidNumber: $uid
 gidNumber: $gid
 homeDirectory: $homedir" | ldapadd -x $ldapurl -D "$binddn" -w "$bindpasswd"
+
+if [ "$email" != "" ]
+then
+	echo "dn: cn=$username,ou=people,$basedn
+changetype: modify
+replace: mail
+mail: $email" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
+fi
 
 gidgroupname=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$gid))" -LLL | grep -P "^cn:" | awk '{print $2}')
 

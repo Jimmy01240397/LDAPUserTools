@@ -93,9 +93,9 @@ basedn=$(echo $(for a in $(echo "$binddn" | sed "s/,/ /g"); do  printf "%s," $(e
 
 gid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(cn=$groupname))" -LLL | grep -P "^gidNumber:" | awk '{print $2}' | sed "s/[^0-9]//g")
 
-if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(gidNumber=$gid))" -LLL)" != "" ]
+if [ "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=person)(gidNumber=$gid))" -LLL)" != "" ]
 then
-	echo "$0: cannot remove the primary group of user '$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(gidNumber=$gid))" -LLL | grep -P "^uid:" | sed -n '1p' | awk '{print $2}')'."
+	echo "$0: cannot remove the primary group of user '$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=person)(gidNumber=$gid))" -LLL | grep -P "^uid:" | sed -n '1p' | awk '{print $2}')'."
 	exit 0
 fi
 

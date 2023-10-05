@@ -18,6 +18,7 @@ Options:
   -p, --password PASSWORD       password of the new password
   -P, --Password				prompt for new password 
   -k, --sshkeys KEYS            Your sshkeys for this account
+  -e, --email EMAIL             Set user email
   -s, --shell SHELL             new login shell for the user account
   -u, --uid UID                 new UID for the user account
   -f, --bindfile				set url,binddn,bindpasswd with file
@@ -46,6 +47,7 @@ sshkeysmode="replace"
 sshkeys=""
 groups=""
 shell=""
+email=""
 url=""
 binddn=""
 bindpasswd=""
@@ -94,6 +96,10 @@ do
                 -u|--uid)
                         shift
                         uid=$1
+                        ;;
+                -e|--email)
+                        shift
+                        email=$1
                         ;;
                 -p|--password)
                         shift
@@ -184,7 +190,7 @@ fi
 
 basedn=$(echo $(for a in $(echo "$binddn" | sed "s/,/ /g"); do  printf "%s," $(echo $a | grep dc=); done) | sed "s/^,//g" | sed "s/,$//g")
 
-oldgid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}' | sed "s/[^0-9]//g")
+oldgid=$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=person)(cn=$username))" -LLL | grep -P "^gidNumber:" | awk '{print $2}' | sed "s/[^0-9]//g")
 
 if [ "$gid" != "100" ]
 then
@@ -225,6 +231,14 @@ replace: uidNumber
 uidNumber: $uid" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
 fi
 
+if [ "$email" != "" ]
+then
+	echo "dn: cn=$username,ou=people,$basedn
+changetype: modify
+replace: mail
+mail: $email" | ldapmodify -x $ldapurl -D "$binddn" -w "$bindpasswd"
+fi
+
 if [ "$gid" != "" ]
 then
 	if [ "$oldgid" != "100" ]
@@ -261,7 +275,7 @@ if [ "$groups" != "" ]
 then
 	case "$groupsmode" in
 			replace)
-					for a in $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(uid=$username))" memberOf -LLL | grep -P "^memberOf:" | awk '{print $2}')
+					for a in $(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=person)(uid=$username))" memberOf -LLL | grep -P "^memberOf:" | awk '{print $2}')
 					do
 						if [ "$a" != "$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=posixGroup)(gidNumber=$oldgid))" -LLL | grep -P "^dn:" | awk '{print $2}')" ]
 						then
@@ -335,7 +349,7 @@ fi
 
 if [ "$newusername" != "" ]
 then
-	allgroups="$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=account)(uid=$username))" memberOf -LLL | grep -P "^memberOf:" | awk '{print $2}')"
+	allgroups="$(ldapsearch -x $ldapurl -D "$binddn" -w "$bindpasswd" -b "$basedn" "(&(objectClass=person)(uid=$username))" memberOf -LLL | grep -P "^memberOf:" | awk '{print $2}')"
 	echo "dn: cn=$username,ou=people,$basedn
 changetype: moddn
 newrdn: cn=$newusername
