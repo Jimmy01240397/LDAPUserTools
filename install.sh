@@ -27,7 +27,7 @@ then
 		set +e
 		sudo apt-get update
 		set -e
-		sudo apt-get install -y curl wget ldap-utils libarchive-zip-perl
+		sudo apt-get install -y curl wget ldap-utils libarchive-zip-perl jq
 		arch=$(dpkg --print-architecture)
 		wget https://github.com/mikefarah/yq/releases/download/v4.17.2/yq_linux_${arch}.tar.gz -O - | tar xz && sudo mv yq_linux_${arch} /usr/local/bin/yq
 	else
