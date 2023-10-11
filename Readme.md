@@ -23,7 +23,7 @@ bash initldapschema.sh <your DC> <olcDatabase file>
 slapadd -b <dc> -l base.ldif
 ```
 
-5. setup all ssh ldap public key login
+## Setup ldap ssh public key login in client
 ``` bash
 cp sshldappubkey.sh /usr/local/bin/sshldappubkey
 chmod 700 /usr/local/bin/sshldappubkey
